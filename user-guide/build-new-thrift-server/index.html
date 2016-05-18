@@ -191,6 +191,34 @@ For example, instead of setting the <code>-thrift.port</code> flag, you can over
 
 <p>For a list of what flags can be set programmatically, please see the <a href="https://github.com/twitter/finatra/blob/develop/thrift/src/main/scala/com/twitter/finatra/thrift/ThriftServer.scala">ThriftServer</a> class.</p>
 
+<h4><a class="anchor" name="server-configuration" href="#default-modules">Server Configuration</a></h4>
+
+<p>If you want to further configure the underlying <a href="https://github.com/twitter/finagle">Finagle</a> server you can override <code>configureThriftServer</code> in your Server and set additional configuration on or override the default configuration of your server. For example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">class</span> <span class="nc">ExampleServer</span> <span class="k">extends</span> <span class="nc">ThriftServer</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">override</span> <span class="k">def</span> <span class="n">configureThriftServer</span><span class="o">(</span><span class="n">server</span><span class="k">:</span> <span class="kt">ThriftMux.Server</span><span class="o">)</span><span class="k">:</span> <span class="kt">ThriftMux.Server</span> <span class="o">=</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">server</span>
+</span><span class='line'>      <span class="o">.</span><span class="n">withMaxRequestSize</span><span class="o">(...)</span>
+</span><span class='line'>      <span class="o">.</span><span class="n">withTracer</span><span class="o">(...)</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<div></div>
+
+
+<p>For more information on <a href="https://github.com/twitter/finagle">Finagle</a> server configuration see the documentation <a href="http://twitter.github.io/finagle/guide/Configuration.html">here</a>; specifically the server documentation <a href="http://twitter.github.io/finagle/guide/Servers.html">here</a>.</p>
+
 <p>Next section: <a href="/finatra/user-guide/build-new-thrift-server/controller.html">Add a Thrift Controller</a>.</p>
 
 <p><nav>
