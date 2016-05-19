@@ -203,12 +203,16 @@ For example, instead of setting the <code>-thrift.port</code> flag, you can over
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">class</span> <span class="nc">ExampleServer</span> <span class="k">extends</span> <span class="nc">ThriftServer</span> <span class="o">{</span>
 </span><span class='line'>
 </span><span class='line'>  <span class="k">override</span> <span class="k">def</span> <span class="n">configureThriftServer</span><span class="o">(</span><span class="n">server</span><span class="k">:</span> <span class="kt">ThriftMux.Server</span><span class="o">)</span><span class="k">:</span> <span class="kt">ThriftMux.Server</span> <span class="o">=</span> <span class="o">{</span>
 </span><span class='line'>    <span class="n">server</span>
 </span><span class='line'>      <span class="o">.</span><span class="n">withMaxRequestSize</span><span class="o">(...)</span>
-</span><span class='line'>      <span class="o">.</span><span class="n">withTracer</span><span class="o">(...)</span>
+</span><span class='line'>      <span class="o">.</span><span class="n">withAdmissionControl</span><span class="o">.</span><span class="n">concurrencyLimit</span><span class="o">(</span>
+</span><span class='line'>        <span class="n">maxConcurrentRequests</span> <span class="k">=</span> <span class="o">...,</span>
+</span><span class='line'>        <span class="n">maxWaiters</span> <span class="k">=</span> <span class="o">...)</span>
 </span><span class='line'>  <span class="o">}</span>
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
