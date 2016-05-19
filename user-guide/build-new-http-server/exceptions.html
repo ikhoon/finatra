@@ -162,10 +162,12 @@
 <span class='line-number'>23</span>
 <span class='line-number'>24</span>
 <span class='line-number'>25</span>
+<span class='line-number'>26</span>
 </pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">import</span> <span class="nn">DoEverythingModule</span>
 </span><span class='line'><span class="k">import</span> <span class="nn">ExampleController</span>
 </span><span class='line'><span class="k">import</span> <span class="nn">ExampleFilter</span>
 </span><span class='line'><span class="k">import</span> <span class="nn">MalformedURLExceptionMapper</span>
+</span><span class='line'><span class="k">import</span> <span class="nn">com.twitter.finagle.http.</span><span class="o">{</span><span class="nc">Request</span><span class="o">,</span> <span class="nc">Response</span><span class="o">}</span>
 </span><span class='line'><span class="k">import</span> <span class="nn">com.twitter.finatra.http.HttpServer</span>
 </span><span class='line'><span class="k">import</span> <span class="nn">com.twitter.finatra.http.filters.</span><span class="o">{</span><span class="nc">CommonFilters</span><span class="o">,</span> <span class="nc">ExceptionMappingFilter</span><span class="o">,</span> <span class="nc">LoggingMDCFilter</span><span class="o">,</span> <span class="nc">TraceIdMDCFilter</span><span class="o">}</span>
 </span><span class='line'><span class="k">import</span> <span class="nn">com.twitter.finatra.http.routing.HttpRouter</span>
@@ -182,7 +184,7 @@
 </span><span class='line'>      <span class="o">.</span><span class="n">filter</span><span class="o">[</span><span class="kt">LoggingMDCFilter</span><span class="o">[</span><span class="kt">Request</span>, <span class="kt">Response</span><span class="o">]]</span>
 </span><span class='line'>      <span class="o">.</span><span class="n">filter</span><span class="o">[</span><span class="kt">TraceIdMDCFilter</span><span class="o">[</span><span class="kt">Request</span>, <span class="kt">Response</span><span class="o">]]</span>
 </span><span class='line'>      <span class="o">.</span><span class="n">filter</span><span class="o">[</span><span class="kt">CommonFilters</span><span class="o">]</span>
-</span><span class='line'>      <span class="o">.</span><span class="n">filter</span><span class="o">[</span><span class="kt">ExceptionMappingFilter</span><span class="o">]</span>
+</span><span class='line'>      <span class="o">.</span><span class="n">filter</span><span class="o">[</span><span class="kt">ExceptionMappingFilter</span><span class="o">[</span><span class="kt">Request</span><span class="o">]]</span>
 </span><span class='line'>      <span class="o">.</span><span class="n">add</span><span class="o">[</span><span class="kt">ExampleFilter</span>, <span class="kt">ExampleController</span><span class="o">]</span>
 </span><span class='line'>      <span class="o">.</span><span class="n">exceptionMapper</span><span class="o">[</span><span class="kt">MalformedURLExceptionMapper</span><span class="o">]</span>
 </span><span class='line'>  <span class="o">}</span>
@@ -225,8 +227,8 @@
 </span><span class='line'>
 </span><span class='line'>  <span class="k">override</span> <span class="k">def</span> <span class="n">configureHttp</span><span class="o">(</span><span class="n">router</span><span class="k">:</span> <span class="kt">HttpRouter</span><span class="o">)</span> <span class="o">{</span>
 </span><span class='line'>    <span class="n">router</span><span class="o">.</span>
-</span><span class='line'>      <span class="n">filter</span><span class="o">[</span><span class="kt">AccessLoggingFilter</span><span class="o">].</span>
-</span><span class='line'>      <span class="n">filter</span><span class="o">[</span><span class="kt">ExceptionMappingFilter</span><span class="o">].</span>
+</span><span class='line'>      <span class="n">filter</span><span class="o">[</span><span class="kt">AccessLoggingFilter</span><span class="o">[</span><span class="kt">Request</span><span class="o">]].</span>
+</span><span class='line'>      <span class="n">filter</span><span class="o">[</span><span class="kt">ExceptionMappingFilter</span><span class="o">[</span><span class="kt">Request</span><span class="o">]].</span>
 </span><span class='line'>      <span class="n">add</span><span class="o">[</span><span class="kt">ExampleFilter</span>, <span class="kt">ExampleController</span><span class="o">].</span>
 </span><span class='line'>      <span class="n">exceptionMapper</span><span class="o">[</span><span class="kt">MalformedURLExceptionMapper</span><span class="o">]</span>
 </span><span class='line'>  <span class="o">}</span>
