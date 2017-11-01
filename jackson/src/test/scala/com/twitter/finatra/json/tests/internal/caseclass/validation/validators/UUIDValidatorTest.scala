@@ -6,36 +6,29 @@ import com.twitter.finatra.validation.{ErrorCode, UUID, ValidationResult, Valida
 import org.scalacheck.Gen
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
-case class UUIDExample(
-  @UUID uuid: String)
+case class UUIDExample(@UUID uuid: String)
 
-class UUIDValidatorTest
-  extends ValidatorTest
-  with GeneratorDrivenPropertyChecks {
+class UUIDValidatorTest extends ValidatorTest with GeneratorDrivenPropertyChecks {
 
-  "uuid validator" should {
+  test("pass validation for valid uuid") {
+    val passValue = Gen.uuid
 
-    "pass validation for valid uuid" in {
-      val passValue = Gen.uuid
-
-      forAll(passValue) { value =>
-        validate[UUIDExample](value.toString) should equal(Valid)
-      }
-    }
-
-    "fail validation for valid uuid" in {
-      val passValue = Gen.alphaStr
-
-      forAll(passValue) { value =>
-        validate[UUIDExample](value) should equal(
-          Invalid(
-          errorMessage(value),
-          ErrorCode.InvalidUUID(value)))
-      }
+    forAll(passValue) { value =>
+      validate[UUIDExample](value.toString) should equal(Valid)
     }
   }
 
-  private def validate[C : Manifest](value: String): ValidationResult = {
+  test("fail validation for valid uuid") {
+    val passValue = Gen.alphaStr
+
+    forAll(passValue) { value =>
+      validate[UUIDExample](value) should equal(
+        Invalid(errorMessage(value), ErrorCode.InvalidUUID(value))
+      )
+    }
+  }
+
+  private def validate[C: Manifest](value: String): ValidationResult = {
     super.validate(manifest[C].runtimeClass, "uuid", classOf[UUID], value)
   }
 

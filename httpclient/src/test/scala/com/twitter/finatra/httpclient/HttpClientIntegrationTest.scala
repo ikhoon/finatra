@@ -15,22 +15,22 @@ class HttpClientIntegrationTest extends IntegrationTest {
   val inMemoryHttpService = new InMemoryHttpService()
 
   override val injector: Injector =
-    TestInjector(
-      modules = Seq(
-        MyHttpClientModule,
-        FinatraJacksonModule))
+    TestInjector(modules = Seq(MyHttpClientModule, FinatraJacksonModule))
       .bind[Service[Request, Response]](inMemoryHttpService)
       .create
 
   val httpClient = injector.instance[HttpClient]
+
+  override def afterEach(): Unit = {
+    resetResettables(inMemoryHttpService)
+  }
 
   test("execute") {
     val okResponse = Response(Status.Ok)
     inMemoryHttpService.mockGet("/foo", okResponse)
     val request = RequestBuilder.get("/foo")
 
-    Await.result(
-      httpClient.execute(request)) should be(okResponse)
+    Await.result(httpClient.execute(request)) should be(okResponse)
   }
 
   test("executeJson") {
@@ -40,8 +40,7 @@ class HttpClientIntegrationTest extends IntegrationTest {
 
     val request = RequestBuilder.post("/foo").body("bar")
 
-    Await.result(
-      httpClient.executeJson[JsonNode](request)).toString should be("{}")
+    Await.result(httpClient.executeJson[JsonNode](request)).toString should be("{}")
   }
 
   test("executeJson w/ unexpected response") {
@@ -50,8 +49,7 @@ class HttpClientIntegrationTest extends IntegrationTest {
     val request = RequestBuilder.get("/foo")
 
     intercept[HttpClientException] {
-      Await.result(
-        httpClient.executeJson[JsonNode](request))
+      Await.result(httpClient.executeJson[JsonNode](request))
     }
   }
 
@@ -62,8 +60,7 @@ class HttpClientIntegrationTest extends IntegrationTest {
     val request = RequestBuilder.get("/foo")
 
     val e = intercept[HttpClientException] {
-      Await.result(
-        httpClient.executeJson[Int](request))
+      Await.result(httpClient.executeJson[Int](request))
     }
     assert(e.getMessage.contains("com.fasterxml.jackson.databind.JsonMappingException"))
   }
@@ -73,8 +70,7 @@ class HttpClientIntegrationTest extends IntegrationTest {
     mockResponse.setContentString("{}")
     inMemoryHttpService.mockGet("/foo", mockResponse)
 
-    Await.result(
-      httpClient.get("/foo")) should be(mockResponse) //Purposely using deprecated method for test coverage
+    Await.result(httpClient.get("/foo")) should be(mockResponse) //Purposely using deprecated method for test coverage
   }
 
   object MyHttpClientModule extends HttpClientModule {

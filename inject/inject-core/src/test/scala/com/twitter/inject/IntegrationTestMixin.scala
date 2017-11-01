@@ -26,6 +26,7 @@ trait IntegrationTestMixin
 
   protected def injector: Injector
 
+  @deprecated("Users are encouraged to reset mocks and resettables directly as appropriate. See c.t.inject.Mockito#resetMocks and IntegrationTest#resetResettables", "2017-09-28")
   protected val resetBindings = true
 
   /** See https://github.com/google/guice/wiki/BoundFields */
@@ -45,18 +46,24 @@ trait IntegrationTestMixin
         org.mockito.Mockito.reset(mockObject)
       }
 
-      for (resettable <- resettableObjects) {
-        debug("Clearing " + resettable)
-        resettable.reset()
-      }
+      resetResettables(resettableObjects: _*)
     }
   }
 
+  protected def resetResettables(resettables: Resettable*): Unit = {
+    for (resettable <- resettables) {
+      debug("Clearing " + resettable)
+      resettable.reset()
+    }
+  }
+
+  @deprecated("Use #bind[T] DSL instead.", "2017-03-01")
   protected def hasBoundFields: Boolean = boundFields.nonEmpty
 
   /* Private */
 
-  private lazy val mockObjects = {
+  @deprecated("Use #bind[T] DSL instead.", "2017-03-01")
+  private[this] lazy val mockObjects = {
     val mockUtil = new MockUtil()
     for {
       field <- boundFields
@@ -65,7 +72,8 @@ trait IntegrationTestMixin
     } yield fieldValue
   }
 
-  private lazy val resettableObjects = {
+  @deprecated("Users are encouraged to reset mocks and resettables directly as appropriate. See c.t.inject.Mockito#resetMocks and IntegrationTest#resetResettables", "2017-09-28")
+  private[this] lazy val resettableObjects = {
     for {
       field <- boundFields
       if classOf[Resettable].isAssignableFrom(field.getType)
@@ -74,7 +82,8 @@ trait IntegrationTestMixin
     } yield fieldValue.asInstanceOf[Resettable]
   }
 
-  private lazy val boundFields = {
+  @deprecated("Use #bind[T] DSL instead.", "2017-03-01")
+  private[this] lazy val boundFields = {
     for {
       field <- getDeclaredFieldsRespectingInheritance(getClass)
       if hasBindAnnotation(field)
@@ -82,6 +91,7 @@ trait IntegrationTestMixin
     } yield field
   }
 
+  @deprecated("Use #bind[T] DSL instead.", "2017-03-01")
   private def hasBindAnnotation(field: Field): Boolean = {
     field.getAnnotation(classOf[Bind]) != null
   }

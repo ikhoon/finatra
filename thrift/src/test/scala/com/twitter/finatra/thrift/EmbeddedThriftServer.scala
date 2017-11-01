@@ -25,29 +25,33 @@ import scala.reflect.runtime.universe._
  * @param verbose Enable verbose logging during test runs.
  * @param disableTestLogging Disable all logging emitted from the test infrastructure.
  * @param maxStartupTimeSeconds Maximum seconds to wait for embedded server to start. If exceeded an Exception is thrown.
+ * @param failOnLintViolation If server startup should fail due (and thus the test) to a detected lint rule issue after startup.
  */
 class EmbeddedThriftServer(
   override val twitterServer: Ports,
-  flags: Map[String, String] = Map(),
-  args: Seq[String] = Seq(),
+  flags: => Map[String, String] = Map(),
+  args: => Seq[String] = Seq(),
   waitForWarmup: Boolean = true,
   stage: Stage = Stage.DEVELOPMENT,
   useSocksProxy: Boolean = false,
   override val thriftPortFlag: String = "thrift.port",
   verbose: Boolean = false,
   disableTestLogging: Boolean = false,
-  maxStartupTimeSeconds: Int = 60)
-  extends EmbeddedTwitterServer(
-    twitterServer,
-    flags + (thriftPortFlag -> ephemeralLoopback),
-    args,
-    waitForWarmup,
-    stage,
-    useSocksProxy,
-    verbose = verbose,
-    disableTestLogging = disableTestLogging,
-    maxStartupTimeSeconds = maxStartupTimeSeconds)
-  with ThriftClient {
+  maxStartupTimeSeconds: Int = 60,
+  failOnLintViolation: Boolean = false
+) extends EmbeddedTwitterServer(
+      twitterServer,
+      flags + (thriftPortFlag -> ephemeralLoopback),
+      args,
+      waitForWarmup,
+      stage,
+      useSocksProxy,
+      verbose = verbose,
+      disableTestLogging = disableTestLogging,
+      maxStartupTimeSeconds = maxStartupTimeSeconds,
+      failOnLintViolation = failOnLintViolation
+    )
+    with ThriftClient {
 
   /* Additional Constructors */
 
@@ -65,9 +69,9 @@ class EmbeddedThriftServer(
    * @tparam T - type of the instance to bind.
    * @return this [[EmbeddedThriftServer]].
    *
-   * @see https://twitter.github.io/finatra/user-guide/testing/index.html#feature-tests
+   * @see [[https://twitter.github.io/finatra/user-guide/testing/index.html#feature-tests Feature Tests]]
    */
-  override def bind[T : TypeTag](instance: T): EmbeddedThriftServer = {
+  override def bind[T: TypeTag](instance: T): EmbeddedThriftServer = {
     bindInstance[T](instance)
     this
   }
@@ -82,10 +86,27 @@ class EmbeddedThriftServer(
    * @tparam A - type of the Annotation used to bind the instance.
    * @return this [[EmbeddedThriftServer]].
    *
-   * @see https://twitter.github.io/finatra/user-guide/testing/index.html#feature-tests
+   * @see [[https://twitter.github.io/finatra/user-guide/testing/index.html#feature-tests Feature Tests]]
    */
-  override def bind[T : TypeTag, A <: Annotation : TypeTag](instance: T): EmbeddedThriftServer = {
+  override def bind[T: TypeTag, A <: Annotation: TypeTag](instance: T): EmbeddedThriftServer = {
     bindInstance[T, A](instance)
+    this
+  }
+
+  /**
+   * Bind an instance of type [T] annotated with the given Annotation value to the object
+   * graph of the underlying thrift server. This will REPLACE any previously bound instance of
+   * the given type bound with the given annotation.
+   *
+   * @param annotation - [[java.lang.annotation.Annotation]] instance value
+   * @param instance - to bind instance.
+   * @tparam T - type of the instance to bind.
+   * @return this [[EmbeddedThriftServer]].
+   *
+   * @see [[https://twitter.github.io/finatra/user-guide/testing/index.html#feature-tests Feature Tests]]
+   */
+  override def bind[T: TypeTag](annotation: Annotation, instance: T): EmbeddedThriftServer = {
+    bindInstance[T](annotation, instance)
     this
   }
 

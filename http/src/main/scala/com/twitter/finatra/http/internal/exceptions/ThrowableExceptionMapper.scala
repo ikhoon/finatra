@@ -13,16 +13,15 @@ private[exceptions] object ThrowableExceptionMapper {
   def unhandledExceptionResponse(
     request: Request,
     response: ResponseBuilder,
-    throwable: Throwable): Response = {
+    throwable: Throwable
+  ): Response = {
 
-    response
-      .internalServerError
+    response.internalServerError
       .failure(
         request,
         source = DefaultExceptionSource,
-        details = Seq(
-          "Unhandled",
-          toExceptionDetails(throwable)))
+        details = Seq("Unhandled", toExceptionDetails(throwable))
+      )
       .jsonError
   }
 }
@@ -45,19 +44,19 @@ private[exceptions] object ThrowableExceptionMapper {
  * converted into a [[com.twitter.finagle.http.Response]]. That subclass can then be
  * registered over the Throwable exception type.
  *
- * @see [[http://twitter.github.io/finatra/user-guide/build-new-http-server/exceptions.html#override-defaults]]
+ * @see [[https://twitter.github.io/finatra/user-guide/build-new-http-server/exceptions.html#override-defaults]]
  * @param response - a [[com.twitter.finatra.http.response.ResponseBuilder]]
  */
 @Singleton
-private[http] class ThrowableExceptionMapper @Inject()(
-  response: ResponseBuilder)
-  extends AbstractFrameworkExceptionMapper[Throwable](response)
-  with Logging {
+private[http] class ThrowableExceptionMapper @Inject()(response: ResponseBuilder)
+    extends AbstractFrameworkExceptionMapper[Throwable](response)
+    with Logging {
 
   override protected def handle(
     request: Request,
     response: ResponseBuilder,
-    throwable: Throwable): Response = {
+    throwable: Throwable
+  ): Response = {
 
     error("Unhandled Exception", throwable)
     unhandledExceptionResponse(request, response, throwable)

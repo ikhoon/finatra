@@ -1,6 +1,5 @@
 java_library(
   dependencies=[
-    '3rdparty/jvm/ch/qos/logback:logback-classic',
     '3rdparty/jvm/com/google/guava:guava',
     '3rdparty/jvm/com/google/inject/extensions:guice-assistedinject',
     '3rdparty/jvm/com/google/inject/extensions:guice-multibindings',
@@ -8,6 +7,7 @@ java_library(
     '3rdparty/jvm/net/codingwell:scala-guice',
     '3rdparty/jvm/org/slf4j:slf4j-api',
     'finagle/finagle-core/src/main/scala',
+    'finagle/finagle-http/src/main/scala',
     'finatra/inject/inject-app/src/main/scala',
     'finatra/inject/inject-core/src/main/scala',
     'finatra/inject/inject-modules/src/main/scala',
@@ -21,10 +21,8 @@ java_library(
     'util/util-logging/src/main/scala',
     'util/util-slf4j-api/src/main/scala',
     'util/util-stats/src/main/scala',
+    'finatra/examples/java-server/src/main/resources',
   ],
   fatal_warnings=False,
   sources=rglobs('*.java'),
-  resources=[
-    'finatra/examples/java-server/src/main/resources'
-  ]
 )

@@ -11,6 +11,7 @@ junit_tests(
     '3rdparty/jvm/org/scalatest:scalatest',
     '3rdparty/jvm/org/slf4j:slf4j-api',
     'finagle/finagle-core/src/main/scala',
+    'finagle/finagle-http/src/main/scala',
     'finagle/finagle-thrift/src/main/scala',
     'finagle/finagle-thriftmux/src/main/scala',
     'finatra/inject/inject-app/src/main/scala',
@@ -34,13 +35,11 @@ junit_tests(
     'util/util-logging/src/main/scala',
     'util/util-slf4j-api/src/main/scala',
     'util/util-stats/src/main/scala',
+    'finatra/thrift/src/test/resources',
   ],
   fatal_warnings=True,
   sources=globs(
     'com/twitter/finatra/thrift/tests/*.java',
     'com/twitter/finatra/thrift/tests/doeverything/*.java',
   ),
-  resources=[
-    'finatra/thrift/src/test/resources'
-  ]
 )

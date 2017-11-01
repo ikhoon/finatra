@@ -7,52 +7,51 @@ import com.twitter.util.{Future, Throw, Try}
 class OptionsConversionsTest extends Test {
 
   test("RichOption#toFutureOrFail when Some") {
+    var evaluated = false
     assertFuture(
-      Some(1).toFutureOrFail(TestException),
+      Some(1).toFutureOrFail({ evaluated = true ; TestException }),
       Future(1))
+    assert(!evaluated)
   }
   test("RichOption#toFutureOrFail when None") {
-    assertFailedFuture[TestException](
-      None.toFutureOrFail(TestException))
+    assertFailedFuture[TestException](None.toFutureOrFail(TestException))
   }
   test("RichOption#toTryOrFail when Some") {
-    Some(1).toTryOrFail(TestException) should equal(Try(1))
+    var evaluated = false
+    Some(1).toTryOrFail({ evaluated = true; TestException }) should equal(Try(1))
+    assert(!evaluated)
   }
   test("RichOption#toTryOrFail when None") {
     None.toTryOrFail(TestException) should equal(Throw(TestException))
   }
   test("RichOption#toFutureOrElse when Some") {
+    var evaluated = false
     assertFuture(
-      Some(1).toFutureOrElse(2),
+      Some(1).toFutureOrElse({ evaluated = true ; 2 }),
       Future(1))
+    assert(!evaluated)
   }
   test("RichOption#toFutureOrElse when None") {
     val noneInt: Option[Int] = None
-    assertFuture(
-      noneInt.toFutureOrElse(2),
-      Future(2))
+    assertFuture(noneInt.toFutureOrElse(2), Future(2))
   }
   test("RichOption#toFutureOrElse with Future when Some") {
+    var evaluated = false
     assertFuture(
-      Some(1).toFutureOrElse(Future(2)),
+      Some(1).toFutureOrElse(Future({ evaluated = true ; 2 })),
       Future(1))
+    assert(!evaluated)
   }
   test("RichOption#toFutureOrElse with Future when None") {
     val noneInt: Option[Int] = None
-    assertFuture(
-      noneInt.toFutureOrElse(Future(2)),
-      Future(2))
+    assertFuture(noneInt.toFutureOrElse(Future(2)), Future(2))
   }
 
   test("RichOptionFuture#toFutureOption when Some") {
-    assertFuture(
-      Some(Future(1)).toFutureOption,
-      Future(Some(1)))
+    assertFuture(Some(Future(1)).toFutureOption, Future(Some(1)))
   }
   test("RichOptionFuture#toFutureOption when None") {
-    assertFuture(
-      None.toFutureOption,
-      Future(None))
+    assertFuture(None.toFutureOption, Future(None))
   }
 
   test("format#return a formatted string when Some") {
@@ -61,7 +60,7 @@ class OptionsConversionsTest extends Test {
   test("format#return empty string when None") {
     None.format("The value is %i") should equal("")
   }
-  
+
   test("option map#map inner values when some") {
     Some(Map("a" -> 1)) mapInnerValues { _.toString } should equal(Some(Map("a" -> "1")))
   }

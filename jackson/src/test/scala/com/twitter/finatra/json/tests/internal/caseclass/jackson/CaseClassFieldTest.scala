@@ -1,43 +1,47 @@
 package com.twitter.finatra.json.tests.internal.caseclass.jackson
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.`type`.TypeFactory
 import com.twitter.finatra.json.internal.caseclass.jackson.CaseClassField
-import com.twitter.finatra.json.tests.internal.{WithEmptyJsonProperty, WithNonemptyJsonProperty, WithoutJsonPropertyAnnotation}
-import com.twitter.finatra.json.utils.CamelCasePropertyNamingStrategy
-import com.twitter.inject.WordSpecTest
+import com.twitter.finatra.json.tests.internal.{
+  WithEmptyJsonProperty,
+  WithNonemptyJsonProperty,
+  WithoutJsonPropertyAnnotation
+}
+import com.twitter.inject.Test
 
-class CaseClassFieldTest extends WordSpecTest {
+class CaseClassFieldTest extends Test {
 
-  "CaseClassField.createFields" should {
-    "have field name foo" in {
-      val fields = CaseClassField.createFields(
-        classOf[WithEmptyJsonProperty],
-        CamelCasePropertyNamingStrategy,
-        TypeFactory.defaultInstance)
+  test("CaseClassField.createFields have field name foo") {
+    val fields = CaseClassField.createFields(
+      classOf[WithEmptyJsonProperty],
+      PropertyNamingStrategy.LOWER_CAMEL_CASE,
+      TypeFactory.defaultInstance
+    )
 
-      fields.length should equal(1)
-      fields.head.name should equal("foo")
-    }
+    fields.length should equal(1)
+    fields.head.name should equal("foo")
+  }
 
-    "also have field name foo" in {
-      val fields = CaseClassField.createFields(
-        classOf[WithoutJsonPropertyAnnotation],
-        CamelCasePropertyNamingStrategy,
-        TypeFactory.defaultInstance)
+  test("CaseClassField.createFields also have field name foo") {
+    val fields = CaseClassField.createFields(
+      classOf[WithoutJsonPropertyAnnotation],
+      PropertyNamingStrategy.LOWER_CAMEL_CASE,
+      TypeFactory.defaultInstance
+    )
 
-      fields.length should equal(1)
-      fields.head.name should equal("foo")
-    }
+    fields.length should equal(1)
+    fields.head.name should equal("foo")
+  }
 
-    "have field name bar" in {
-      val fields = CaseClassField.createFields(
-        classOf[WithNonemptyJsonProperty],
-        CamelCasePropertyNamingStrategy,
-        TypeFactory.defaultInstance)
+  test("CaseClassField.createFields have field name bar") {
+    val fields = CaseClassField.createFields(
+      classOf[WithNonemptyJsonProperty],
+      PropertyNamingStrategy.LOWER_CAMEL_CASE,
+      TypeFactory.defaultInstance
+    )
 
-      fields.length should equal(1)
-      fields.head.name should equal ("bar")
-    }
-
+    fields.length should equal(1)
+    fields.head.name should equal("bar")
   }
 }

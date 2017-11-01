@@ -2,15 +2,15 @@ package com.twitter.finatra.json.tests.internal.streaming
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.twitter.inject.conversions.buf._
-import com.twitter.finatra.json.internal.streaming.{ParsingState, JsonArrayChunker}
-import com.twitter.finatra.json.{JsonDiff, FinatraObjectMapper}
+import com.twitter.finatra.json.internal.streaming.{JsonArrayChunker, ParsingState}
+import com.twitter.finatra.json.{FinatraObjectMapper, JsonDiff}
 import com.twitter.finatra.json.internal.streaming.ParsingState._
-import com.twitter.inject.WordSpecTest
+import com.twitter.inject.Test
 import com.twitter.io.Buf
 
-class JsonObjectDecoderTest extends WordSpecTest {
+class JsonObjectDecoderTest extends Test {
 
-  "decode" in {
+  test("decode") {
     val decoder = new JsonArrayChunker()
 
     assertDecode(
@@ -20,21 +20,12 @@ class JsonObjectDecoderTest extends WordSpecTest {
       remainder = "1",
       pos = 1,
       openBraces = 1,
-      parsingState = InsideArray)
+      parsingState = InsideArray
+    )
 
-    assertDecode(
-      decoder,
-      input = ",2",
-      output = Seq("1"),
-      remainder = "2",
-      pos = 1)
+    assertDecode(decoder, input = ",2", output = Seq("1"), remainder = "2", pos = 1)
 
-    assertDecode(
-      decoder,
-      input = ",3",
-      output = Seq("2"),
-      remainder = "3",
-      pos = 1)
+    assertDecode(decoder, input = ",3", output = Seq("2"), remainder = "3", pos = 1)
 
     assertDecode(
       decoder,
@@ -43,12 +34,13 @@ class JsonObjectDecoderTest extends WordSpecTest {
       remainder = "",
       pos = 0,
       openBraces = 0,
-      done = true)
+      done = true
+    )
   }
 
   val mapper = FinatraObjectMapper.create()
 
-  "decode with nested objects" in {
+  test("decode with nested objects") {
     val jsonObj = """
      {
       "sub_object": {
@@ -60,12 +52,12 @@ class JsonObjectDecoderTest extends WordSpecTest {
     assertSingleJsonParse(jsonObj)
   }
 
-  "decode json inside a string" in {
+  test("decode json inside a string") {
     val jsonObj = """{"foo": "bar"}"""
     assertSingleJsonParse(jsonObj)
   }
 
-  "Caling decode when already finished" in {
+  test("Caling decode when already finished") {
     val decoder = new JsonArrayChunker()
     decoder.decode(Buf.Utf8("[]"))
     intercept[Exception] {
@@ -81,7 +73,8 @@ class JsonObjectDecoderTest extends WordSpecTest {
     pos: Int,
     openBraces: Int = 1,
     parsingState: ParsingState = InsideArray,
-    done: Boolean = false): Unit = {
+    done: Boolean = false
+  ): Unit = {
 
     val result = decoder.decode(Buf.Utf8(input))
     result map { _.utf8str } should equal(output)

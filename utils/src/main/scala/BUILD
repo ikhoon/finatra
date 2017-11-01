@@ -5,18 +5,20 @@ scala_library(
     repo = artifactory,
   ),
   dependencies=[
+    '3rdparty/jvm/com/fasterxml/jackson:jackson-annotations',
     '3rdparty/jvm/com/google/inject/extensions:guice-assistedinject',
     '3rdparty/jvm/com/google/inject/extensions:guice-multibindings',
     '3rdparty/jvm/com/google/inject:guice',
+    '3rdparty/jvm/commons-io',
     '3rdparty/jvm/commons-lang:commons-lang',
     '3rdparty/jvm/javax/inject:javax.inject',
     '3rdparty/jvm/joda-time:joda-time',
     '3rdparty/jvm/net/codingwell:scala-guice',
-    '3rdparty/jvm/org/apache/thrift:libthrift-0.5.0',
     '3rdparty/jvm/org/slf4j:slf4j-api',
     'finagle/finagle-core/src/main/scala',
-    'finagle/finagle-http/src/main/scala',
+    'finatra/inject/inject-app/src/main/scala',
     'finatra/inject/inject-core/src/main/scala',
+    'finatra/inject/inject-slf4j/src/main/scala:scala',
     'finatra/inject/inject-utils/src/main/scala',
     'util/util-app/src/main/scala',
     'util/util-core/src/main/scala',
@@ -27,4 +29,9 @@ scala_library(
   java_sources=[
     'finatra/utils/src/main/java',
   ],
+  exports=[
+    '3rdparty/jvm/com/google/inject/extensions:guice-assistedinject',
+    '3rdparty/jvm/net/codingwell:scala-guice',
+  ]
+
 )

@@ -5,5 +5,6 @@ import javax.inject.Inject
 
 case class MustacheBodyComponent @Inject()(
   data: Any,
-  template: String)
-  extends MessageBodyComponent
+  templateName: String,
+  contentType: String
+) extends MessageBodyComponent

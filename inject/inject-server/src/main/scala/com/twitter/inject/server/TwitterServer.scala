@@ -7,12 +7,11 @@ import com.twitter.finagle.util.DefaultTimer
 import com.twitter.inject.Logging
 import com.twitter.inject.annotations.Lifecycle
 import com.twitter.inject.app.App
-import com.twitter.inject.logging.Slf4jBridgeUtility
 import com.twitter.inject.modules.StatsReceiverModule
 import com.twitter.inject.utils.Handler
 import com.twitter.server.Lifecycle.Warmup
 import com.twitter.server.internal.FinagleBuildRevision
-import com.twitter.util.{Awaitable, Await, Duration}
+import com.twitter.util.{Await, Awaitable, Duration}
 import java.util.concurrent.{ConcurrentLinkedQueue, CountDownLatch}
 import scala.collection.JavaConverters._
 
@@ -34,21 +33,15 @@ abstract class AbstractTwitterServer extends TwitterServer
 trait TwitterServer
   extends App
   with com.twitter.server.TwitterServer
+  with DeprecatedLogging
   with Ports
   with Warmup
   with Logging {
 
-  addFrameworkModules(
-    statsReceiverModule)
+  addFrameworkModules(statsReceiverModule)
 
-  /**
-   * Attempt to install the Slf4jBridgeHandler and override the `configureLoggerFactories`
-   * method to do nothing, so that any installed bridges are not removed/replaced.
-   */
-  Slf4jBridgeUtility.attemptSlf4jBridgeHandlerInstallation()
-  override def configureLoggerFactories(): Unit = {}
-
-  private val adminAnnounceFlag = flag[String]("admin.announce", "Address for announcing admin server")
+  private val adminAnnounceFlag =
+    flag[String]("admin.announce", "Address for announcing admin server")
 
   /* Mutable State */
 
@@ -102,7 +95,7 @@ trait TwitterServer
    * @tparam T - type parameter with upper-bound of [[com.twitter.inject.utils.Handler]]
    * @see [[com.twitter.inject.utils.Handler]]
    */
-  protected def handle[T <: Handler : Manifest](): Unit = {
+  protected def handle[T <: Handler: Manifest](): Unit = {
     injector.instance[T].handle()
   }
 
@@ -122,8 +115,8 @@ trait TwitterServer
    *
    * Any exceptions thrown in this method will result in the server exiting.
    */
-  protected def start(): Unit = {
-  }
+  @Lifecycle
+  protected def start(): Unit = {}
 
   /* Overrides */
 
@@ -135,8 +128,8 @@ trait TwitterServer
     // exit if any of the awaitables is ready
     val latch = new CountDownLatch(1)
     val awaits = awaitables.asScala
-    val task = DefaultTimer.twitter.schedule(CheckDuration) {
-      if (awaits.exists(Await.isReady(_)))
+    val task = DefaultTimer.schedule(CheckDuration) {
+      if (awaits.exists(Await.isReady))
         latch.countDown()
     }
 
@@ -221,4 +214,12 @@ trait TwitterServer
     }
     warmupComplete()
   }
+}
+
+@deprecated("For backwards compatibility of defined flags", "2017-10-06")
+private[server] trait DeprecatedLogging extends com.twitter.logging.Logging { self: App =>
+  @deprecated("For backwards compatibility only. Do not attempt to use this logger.", "2017-10-06")
+  override lazy val log: com.twitter.logging.Logger = com.twitter.logging.NullLogger
+
+  override def configureLoggerFactories(): Unit = {}
 }

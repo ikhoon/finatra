@@ -1,6 +1,5 @@
 java_library(
   dependencies=[
-    '3rdparty/jvm/ch/qos/logback:logback-classic',
     '3rdparty/jvm/com/google/inject:guice',
     '3rdparty/jvm/org/slf4j:slf4j-api',
     'finagle/finagle-base-http/src/main/scala',
@@ -21,10 +20,8 @@ java_library(
     'util/util-logging/src/main/scala',
     'util/util-slf4j-api/src/main/scala',
     'util/util-stats/src/main/scala',
+    'finatra/examples/java-http-server/src/main/resources',
   ],
   fatal_warnings=False,
   sources=rglobs('*.java'),
-  resources=[
-    'finatra/examples/java-http-server/src/main/resources'
-  ]
 )

@@ -8,16 +8,22 @@ junit_tests(
     '3rdparty/jvm/net/codingwell:scala-guice',
     '3rdparty/jvm/org/scalatest:scalatest',
     '3rdparty/jvm/org/slf4j:slf4j-api',
+    '3rdparty/jvm/org/slf4j:slf4j-simple',
     'finagle/finagle-core/src/main/scala',
+    'finagle/finagle-http/src/main/scala:scala',
+    'finagle/finagle-thrift/src/main/scala:scala',
     'finagle/finagle-thriftmux/src/main/scala',
     'finatra/inject/inject-app/src/main/scala',
+    'finatra/inject/inject-app/src/test/scala:test-deps',
     'finatra/inject/inject-core/src/main/scala',
     'finatra/inject/inject-core/src/test/scala:test-deps',
     'finatra/inject/inject-server/src/main/scala',
     'finatra/inject/inject-server/src/test/scala:test-deps',
+    'finatra/inject/inject-slf4j/src/main/scala:scala',
     'finatra/inject/inject-utils/src/main/scala',
     'finatra/thrift/src/main/scala',
     'finatra/thrift/src/main/thrift:thrift-scala',
+    'finatra/thrift/src/test/resources',
     'finatra/thrift/src/test/scala:test-deps',
     'finatra/thrift/src/test/thrift:doeverything-thrift-scala',
     'finatra/utils/src/main/java',
@@ -26,15 +32,13 @@ junit_tests(
     'twitter-server/src/main/scala',
     'util/util-app/src/main/scala',
     'util/util-core/src/main/scala',
+    'util/util-lint/src/main/scala:scala',
     'util/util-logging/src/main/scala',
     'util/util-slf4j-api/src/main/scala',
     'util/util-stats/src/main/scala',
   ],
   fatal_warnings=True,
   sources=rglobs('com/twitter/finatra/thrift/tests/*.scala'),
-  resources=[
-    'finatra/thrift/src/test/resources'
-  ]
 )
 
 scala_library(name="test-deps",
@@ -54,8 +58,12 @@ scala_library(name="test-deps",
     'finagle/finagle-thriftmux/src/main/scala',
     'finatra/inject/inject-server/src/main/scala',
     'finatra/inject/inject-server/src/test/scala:test-deps',
+    'twitter-server/src/main/scala:scala',
     'util/util-stats/src/main/scala',
   ],
   fatal_warnings=True,
-  sources=globs('com/twitter/finatra/thrift/*.scala')
+  sources=globs('com/twitter/finatra/thrift/*.scala'),
+  exports=[
+    '3rdparty/jvm/net/codingwell:scala-guice',
+  ]
 )

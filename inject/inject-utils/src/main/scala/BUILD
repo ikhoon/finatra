@@ -5,6 +5,7 @@ scala_library(
     repo = artifactory,
   ),
   dependencies=[
+    '3rdparty/jvm/com/fasterxml/jackson:jackson-annotations',
     '3rdparty/jvm/com/github/nscala_time:nscala_time',
     '3rdparty/jvm/commons-lang',
     '3rdparty/jvm/joda-time:joda-time',
@@ -12,12 +13,15 @@ scala_library(
     'finagle/finagle-core/src/main/scala',
     'finagle/finagle-mux/src/main/scala',
     'finatra/inject/inject-core/src/main/scala',
+    'finatra/inject/inject-slf4j/src/main/scala:scala',
+    'finatra/inject/inject-utils/src/main/resources',
     'util/util-core/src/main/scala',
     'util/util-slf4j-api/src/main/scala',
   ],
   fatal_warnings=True,
   sources=rglobs('*.scala'),
-  resources=[
-    'finatra/inject/inject-utils/src/main/resources'
+  exports=[
+    '3rdparty/jvm/com/github/nscala_time:nscala_time',
   ]
+
 )

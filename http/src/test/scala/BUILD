@@ -2,7 +2,6 @@ junit_tests(
   dependencies=[
     '//:scalac',
     '//:scalap',
-    '3rdparty/jvm/ch/qos/logback:logback-classic',
     '3rdparty/jvm/com/fasterxml/jackson/core:jackson-databind',
     '3rdparty/jvm/com/fasterxml/jackson/datatype:jackson-datatype-joda',
     '3rdparty/jvm/com/fasterxml/jackson/module:jackson-module-scala',
@@ -24,13 +23,16 @@ junit_tests(
     '3rdparty/jvm/org/scala-lang/modules:scala-xml',
     '3rdparty/jvm/org/scalatest:scalatest',
     '3rdparty/jvm/org/slf4j:slf4j-api',
+    '3rdparty/jvm/org/slf4j:slf4j-simple',
     '3rdparty/jvm/org/specs2:mock',
     'finagle/finagle-core/src/main/scala',
     'finagle/finagle-http/src/main/scala',
     'finatra/http/src/main/java',
     'finatra/http/src/main/scala',
     'finatra/http/src/test/java',
+    'finatra/http/src/test/resources',
     'finatra/http/src/test/scala:test-deps',
+    'finatra/http/src/test/webapp',
     'finatra/httpclient/src/main/scala',
     'finatra/inject/inject-app/src/main/scala',
     'finatra/inject/inject-app/src/test/scala:test-deps',
@@ -41,6 +43,7 @@ junit_tests(
     'finatra/inject/inject-request-scope/src/main/scala',
     'finatra/inject/inject-server/src/main/scala',
     'finatra/inject/inject-server/src/test/scala:test-deps',
+    'finatra/inject/inject-slf4j/src/main/scala:scala',
     'finatra/inject/inject-utils/src/main/scala',
     'finatra/jackson/src/main/scala',
     'finatra/jackson/src/test/scala:test-deps',
@@ -49,6 +52,7 @@ junit_tests(
     'twitter-server/src/main/scala',
     'util/util-app/src/main/scala',
     'util/util-core/src/main/scala',
+    'util/util-lint/src/main/scala:scala',
     'util/util-logging/src/main/scala',
     'util/util-slf4j-api/src/main/scala',
     'util/util-stats/src/main/scala',
@@ -56,10 +60,6 @@ junit_tests(
   sources=rglobs(
     'com/twitter/finatra/http/tests/*.scala',
   ),
-  resources=[
-    'finatra/http/src/test/resources',
-    'finatra/http/src/test/webapp',
-  ]
 )
 
 scala_library(name="test-deps",
@@ -90,6 +90,7 @@ scala_library(name="test-deps",
     'finatra/inject/inject-server/src/test/scala:test-deps',
     'finatra/jackson/src/main/scala',
     'finatra/jackson/src/test/scala:test-deps',
+    'twitter-server/src/main/scala:scala',
     'util/util-core/src/main/scala',
     'util/util-slf4j-api/src/main/scala',
   ],
@@ -97,4 +98,8 @@ scala_library(name="test-deps",
   sources=globs(
     'com/twitter/finatra/http/*.scala'
   ),
+  exports=[
+    'finatra/http/src/main/scala',
+    'finatra/inject/inject-server/src/test/scala:test-deps',
+  ],
 )

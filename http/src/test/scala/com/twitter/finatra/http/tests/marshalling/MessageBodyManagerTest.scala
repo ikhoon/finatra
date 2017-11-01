@@ -5,19 +5,14 @@ import com.twitter.finatra.http.internal.marshalling.MessageBodyManager
 import com.twitter.finatra.http.marshalling.MessageBodyReader
 import com.twitter.finatra.http.modules.{MessageBodyModule, MustacheModule}
 import com.twitter.finatra.json.modules.FinatraJacksonModule
-import com.twitter.inject.Test
+import com.twitter.inject.{Mockito, Test}
 import com.twitter.inject.app.TestInjector
-import org.specs2.mock.Mockito
 
 class MessageBodyManagerTest extends Test with Mockito {
 
   val request = mock[Request]
   val injector =
-    TestInjector(
-      MessageBodyModule,
-      FinatraJacksonModule,
-      MustacheModule)
-    .create
+    TestInjector(MessageBodyModule, FinatraJacksonModule, MustacheModule).create
 
   val messageBodyManager = injector.instance[MessageBodyManager]
   messageBodyManager.add[DogMessageBodyReader]()
@@ -38,6 +33,12 @@ class MessageBodyManagerTest extends Test with Mockito {
 
   test("parse father impl with father MBR") {
     messageBodyManager.read[Son](request) should equal(Son("Son"))
+  }
+
+  test("parse map with MBR not supported") {
+    intercept[IllegalArgumentException] {
+      messageBodyManager.add[MapIntDoubleMessageBodyReader]()
+    }
   }
 }
 
@@ -60,7 +61,7 @@ class DogMessageBodyReader extends MessageBodyReader[Dog] {
 }
 
 class FatherMessageBodyReader extends MessageBodyReader[Father] {
-  override def parse[M <: Father : Manifest](request: Request): Father = {
+  override def parse[M <: Father: Manifest](request: Request): Father = {
     if (manifest[M].runtimeClass == classOf[Son]) {
       Son("Son").asInstanceOf[Father]
     } else if (manifest[M].runtimeClass == classOf[FatherImpl]) {
@@ -69,4 +70,8 @@ class FatherMessageBodyReader extends MessageBodyReader[Father] {
       throw new RuntimeException("FAIL")
     }
   }
+}
+
+class MapIntDoubleMessageBodyReader extends MessageBodyReader[Map[Int, Double]] {
+  def parse[M: Manifest](request: Request): Map[Int, Double] = Map(1 -> 0.0, 2 -> 3.14, 3 -> 0.577)
 }

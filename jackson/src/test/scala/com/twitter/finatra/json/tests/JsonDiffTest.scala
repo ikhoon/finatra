@@ -4,11 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.twitter.finatra.json.FinatraObjectMapper
 import com.twitter.finatra.json.JsonDiff._
 import com.twitter.finatra.json.utils.JsonDiffUtil
-import com.twitter.inject.WordSpecTest
+import com.twitter.inject.Test
 import org.scalatest.exceptions.TestFailedException
 
-class JsonDiffTest extends WordSpecTest {
-  "json diff test" in {
+class JsonDiffTest extends Test {
+  test("json diff test") {
     val a =
       """
       {
@@ -28,10 +28,10 @@ class JsonDiffTest extends WordSpecTest {
     jsonDiff(a, b)
   }
 
-  "json diff failure" in {
+  test("json diff failure") {
 
     val a =
-    """
+      """
       {
         "a": 1,
         "b": 2
@@ -39,7 +39,7 @@ class JsonDiffTest extends WordSpecTest {
     """
 
     val b =
-    """
+      """
       {
         "a": 11,
         "b": 2
@@ -47,14 +47,11 @@ class JsonDiffTest extends WordSpecTest {
     """
 
     intercept[TestFailedException] {
-      jsonDiff(
-        receivedJson = a,
-        expectedJson = b,
-        verbose = false)
+      jsonDiff(receivedJson = a, expectedJson = b, verbose = false)
     }
   }
 
-  "generate sorted" in {
+  test("generate sorted") {
     val mapper = FinatraObjectMapper.create()
     val before = mapper.parse[JsonNode]("""{"a":1,"c":3,"b":2}""")
     val expected = """{"a":1,"b":2,"c":3}"""

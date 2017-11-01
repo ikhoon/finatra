@@ -10,15 +10,22 @@ import com.twitter.inject.utils.RetryUtils
 import com.twitter.util.{Future, Try}
 
 /**
- * A simple HTTP client
+ * A simple HTTP client.
+ *
+ * @note Some servers won't handle requests properly if the Host header is not set
+ * @param hostname the hostname that will be used for the Host header. Leave as default or set as "" to not set a Host header
+ * @param httpService underlying `com.twitter.finagle.Service`
+ * @param retryPolicy optional retry policy if the service fails to get a successful response
+ * @param defaultHeaders headers to add to every request
+ * @param mapper object mapper [[com.twitter.finatra.json.FinatraObjectMapper]]
  */
 class HttpClient(
   hostname: String = "",
   httpService: Service[Request, Response],
   retryPolicy: Option[RetryPolicy[Try[Response]]] = None,
   defaultHeaders: Map[String, String] = Map(),
-  mapper: FinatraObjectMapper)
-  extends Logging {
+  mapper: FinatraObjectMapper
+) extends Logging {
 
   /* Public */
 
@@ -33,33 +40,28 @@ class HttpClient(
     }
   }
 
-  def executeJson[T: Manifest](
-    request: Request,
-    expectedStatus: Status = Status.Ok): Future[T] = {
+  def executeJson[T: Manifest](request: Request, expectedStatus: Status = Status.Ok): Future[T] = {
 
     execute(request) flatMap { httpResponse =>
       if (httpResponse.status != expectedStatus) {
-        Future.exception(new HttpClientException(
-          httpResponse.status,
-          httpResponse.contentString))
-      }
-      else {
-        Future(
-          FinatraObjectMapper.parseResponseBody[T](httpResponse, mapper.reader[T]))
-            .transformException { e =>
-              new HttpClientException(
-                httpResponse.status,
-                s"${e.getClass.getName} - ${e.getMessage}")
-        }
+        Future.exception(new HttpClientException(httpResponse.status, httpResponse.contentString))
+      } else {
+        Future(FinatraObjectMapper.parseResponseBody[T](httpResponse, mapper.reader[T]))
+          .transformException { e =>
+            new HttpClientException(httpResponse.status, s"${e.getClass.getName} - ${e.getMessage}")
+          }
       }
     }
   }
 
   @deprecated("Use execute(Request)", "")
   def get(uri: String, headers: Seq[(String, String)] = Seq()): Future[Response] = {
-    execute(RequestBuilder
-      .get(uri)
-      .headers(headers).request)
+    execute(
+      RequestBuilder
+        .get(uri)
+        .headers(headers)
+        .request
+    )
   }
 
   /* Private */

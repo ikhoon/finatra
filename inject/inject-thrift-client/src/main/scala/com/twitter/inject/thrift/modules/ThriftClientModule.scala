@@ -14,9 +14,7 @@ import javax.inject.Singleton
 import scala.reflect.ClassTag
 
 @deprecated("Use the com.twitter.inject.thrift.modules.FilteredThriftClientModule", "2016-06-23")
-abstract class ThriftClientModule[T: ClassTag]
-  extends TwitterModule
-  with time.Implicits {
+abstract class ThriftClientModule[T: ClassTag] extends TwitterModule with time.Implicits {
 
   /**
    * Name of client for use in metrics
@@ -35,7 +33,7 @@ abstract class ThriftClientModule[T: ClassTag]
    * a nondescript ChannelClosedException will be seen.
    *
    * What is ThriftMux?
-   * http://twitter.github.io/finagle/guide/FAQ.html?highlight=thriftmux#what-is-thriftmux
+   * https://twitter.github.io/finagle/guide/FAQ.html?highlight=thriftmux#what-is-thriftmux
    */
   def mux: Boolean = true
 
@@ -49,20 +47,19 @@ abstract class ThriftClientModule[T: ClassTag]
     val labelAndDest = s"$label=$dest"
 
     if (mux) {
-      ThriftMux.client.
-        configured(TimeoutFilter.Param(requestTimeout)).
-        configured(TimeoutFactory.Param(connectTimeout)).
-        configured(Stats(statsReceiver.scope("clnt"))).
-        withClientId(clientId).
-        newIface[T](labelAndDest)
-    }
-    else {
-      Thrift.client.
-        configured(TimeoutFilter.Param(requestTimeout)).
-        configured(TimeoutFactory.Param(connectTimeout)).
-        configured(Stats(statsReceiver.scope("clnt"))).
-        withClientId(clientId).
-        newIface[T](labelAndDest)
+      ThriftMux.client
+        .configured(TimeoutFilter.Param(requestTimeout))
+        .configured(TimeoutFactory.Param(connectTimeout))
+        .configured(Stats(statsReceiver.scope("clnt")))
+        .withClientId(clientId)
+        .newIface[T](labelAndDest)
+    } else {
+      Thrift.client
+        .configured(TimeoutFilter.Param(requestTimeout))
+        .configured(TimeoutFactory.Param(connectTimeout))
+        .configured(Stats(statsReceiver.scope("clnt")))
+        .withClientId(clientId)
+        .newIface[T](labelAndDest)
     }
   }
 }

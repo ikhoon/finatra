@@ -14,6 +14,7 @@ abstract class HttpClientModule extends TwitterModule {
 
   def dest: String
 
+  // override and set to a non-empty value if the dest requires a Host header
   def hostname: String = ""
 
   def retryPolicy: Option[RetryPolicy[Try[Response]]] = None
@@ -26,14 +27,16 @@ abstract class HttpClientModule extends TwitterModule {
   @Provides
   def provideHttpClient(
     mapper: FinatraObjectMapper,
-    httpService: Service[Request, Response]): HttpClient = {
+    httpService: Service[Request, Response]
+  ): HttpClient = {
 
     new HttpClient(
       hostname = hostname,
       httpService = httpService,
       retryPolicy = retryPolicy,
       defaultHeaders = defaultHeaders,
-      mapper = mapper)
+      mapper = mapper
+    )
   }
 
   @Singleton
@@ -41,12 +44,9 @@ abstract class HttpClientModule extends TwitterModule {
   def provideHttpService: Service[Request, Response] = {
     sslHostname match {
       case Some(ssl) =>
-        RichHttpClient.newSslClientService(
-          sslHostname = ssl,
-          dest = dest)
+        RichHttpClient.newSslClientService(sslHostname = ssl, dest = dest)
       case _ =>
-        RichHttpClient.newClientService(
-          dest = dest)
+        RichHttpClient.newClientService(dest = dest)
     }
   }
 }

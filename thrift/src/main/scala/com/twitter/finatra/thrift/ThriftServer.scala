@@ -1,27 +1,46 @@
 package com.twitter.finatra.thrift
 
 import com.twitter.conversions.time._
-import com.twitter.finagle.{NullServer, ListeningServer, ThriftMux}
+import com.twitter.finagle.{ListeningServer, NullServer, ThriftMux}
+import com.twitter.finatra.thrift.modules.ExceptionManagerModule
 import com.twitter.finatra.thrift.routing.ThriftRouter
 import com.twitter.inject.annotations.Lifecycle
 import com.twitter.inject.server.{PortUtils, TwitterServer}
-import com.twitter.util.Await
+import com.twitter.util.{Await, Duration}
 
 /** AbstractThriftServer for usage from Java */
 abstract class AbstractThriftServer extends ThriftServer
 
+private object ThriftServer {
+  /**
+   * Sentinel used to indicate no announcement.
+   */
+  val NoThriftAnnouncement: String = ""
+}
+
 trait ThriftServer extends TwitterServer {
 
-  protected def defaultFinatraThriftPort: String = ":9999"
-  private val thriftPortFlag = flag("thrift.port", defaultFinatraThriftPort, "External Thrift server port")
+  addFrameworkModules(ExceptionManagerModule)
 
-  protected def defaultThriftShutdownTimeout = 1.minute
-  private val thriftShutdownTimeoutFlag = flag("thrift.shutdown.time", defaultThriftShutdownTimeout, "Maximum amount of time to wait for pending requests to complete on shutdown")
+  protected def defaultFinatraThriftPort: String = ":9999"
+  private val thriftPortFlag =
+    flag("thrift.port", defaultFinatraThriftPort, "External Thrift server port")
+
+  protected def defaultThriftShutdownTimeout: Duration = 1.minute
+  private val thriftShutdownTimeoutFlag = flag(
+    "thrift.shutdown.time",
+    defaultThriftShutdownTimeout,
+    "Maximum amount of time to wait for pending requests to complete on shutdown"
+  )
 
   protected def defaultThriftServerName: String = "thrift"
-  private val thriftServerNameFlag = flag("thrift.name", defaultThriftServerName, "Thrift server name")
+  private val thriftServerNameFlag =
+    flag("thrift.name", defaultThriftServerName, "Thrift server name")
 
-  private val thriftAnnounceFlag = flag[String]("thrift.announce", "Address for announcing Thrift server")
+  protected def defaultThriftAnnouncement: String = ThriftServer.NoThriftAnnouncement
+  private val thriftAnnounceFlag =
+    flag[String]("thrift.announce", defaultThriftAnnouncement,
+      "Address for announcing Thrift server. Empty string indicates no announcement.")
 
   /* Private Mutable State */
 
@@ -50,25 +69,35 @@ trait ThriftServer extends TwitterServer {
     val thriftServerBuilder =
       configureThriftServer(
         ThriftMux.server
-          .withLabel(thriftServerNameFlag()))
+          .withLabel(thriftServerNameFlag())
+      )
 
-    thriftServer = router.services.service.map { service =>
-      thriftServerBuilder.serve(thriftPortFlag(), service)
-    }.getOrElse {
-      thriftServerBuilder.serveIface(thriftPortFlag(), router.services.serviceIface)
-    }
+    thriftServer = router.services.service
+      .map { service =>
+        // if we have a built Service[-Req, +Rep] we serve it
+        thriftServerBuilder.serve(thriftPortFlag(), service)
+      }
+      .getOrElse {
+        // otherwise we serve from a ServiceIface
+        thriftServerBuilder.serveIface(thriftPortFlag(), router.services.serviceIface)
+      }
     onExit {
-      Await.result(
-        thriftServer.close(thriftShutdownTimeoutFlag().fromNow))
+      Await.result(thriftServer.close(thriftShutdownTimeoutFlag().fromNow))
     }
     await(thriftServer)
-    for (addr <- thriftAnnounceFlag.get) thriftServer.announce(addr)
-    info("thrift server started on port: " + thriftPort.get)
+
+    thriftAnnounceFlag() match {
+      case ThriftServer.NoThriftAnnouncement => // no-op
+      case addr =>
+        info(s"thrift server announced to $addr")
+        thriftServer.announce(addr)
+    }
+    info(s"thrift server started on port: ${thriftPort.get}")
   }
 
   /* Overrides */
 
-  override def thriftPort: Option[Int] = Option(thriftServer) map PortUtils.getPort
+  override def thriftPort: Option[Int] = Option(thriftServer).map(PortUtils.getPort)
 
   /* Protected */
 

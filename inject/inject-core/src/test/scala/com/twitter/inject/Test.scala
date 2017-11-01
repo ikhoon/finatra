@@ -24,7 +24,7 @@ import org.scalatest.junit.JUnitRunner
  * @see [[org.scalatest.FunSuite FunSuite]]
  * @see [[com.twitter.inject.TestMixin Finatra TestMixin]]
  */
- @RunWith(classOf[JUnitRunner])
+@RunWith(classOf[JUnitRunner])
 abstract class Test
   extends FunSuite
   with TestMixin

@@ -8,17 +8,17 @@ import javax.inject.{Inject, Singleton}
 @Singleton
 class MustacheMessageBodyWriter @Inject()(
   mustacheService: MustacheService,
-  templateLookup: MustacheTemplateNameLookup)
-  extends MessageBodyWriter[Any] {
+  templateLookup: MustacheTemplateLookup
+) extends MessageBodyWriter[Any] {
 
   /* Public */
 
   override def write(obj: Any): WriterResponse = {
+    val template = templateLookup.getTemplate(obj)
+
     WriterResponse(
-      MediaType.HTML_UTF_8,
-      mustacheService.createBuffer(
-        templateLookup.getTemplateName(obj),
-        getScope(obj))
+      MediaType.parse(template.contentType),
+      mustacheService.createBuffer(template.name, getScope(obj))
     )
   }
 

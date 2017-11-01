@@ -46,17 +46,8 @@ trait TestMixin
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
   }
 
-  @deprecated("Use com.twitter.inject.Mockito#reset", "since 2-22-2015")
-  protected def resetMocks(mocks: AnyRef*) {
-    for (mock <- mocks) {
-      trace("Resetting " + mock)
-      org.mockito.Mockito.reset(mock)
-    }
-  }
-
   protected def resourceAsString(resource: String) = {
-    IOUtils.toString(
-      getClass.getResourceAsStream(resource))
+    IOUtils.toString(getClass.getResourceAsStream(resource))
   }
 
   protected def sleep(duration: Duration, verbose: Boolean = false) {
@@ -83,7 +74,7 @@ trait TestMixin
     resultVal should equal(expectedVal)
   }
 
-  protected def assertFailedFuture[T <: Throwable : Manifest](result: Future[_]): T = {
+  protected def assertFailedFuture[T <: Throwable: Manifest](result: Future[_]): T = {
     try {
       Await.result(result)
       fail("Expected exception " + manifest[T].runtimeClass + " never thrown")

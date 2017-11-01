@@ -5,6 +5,8 @@ scala_library(
     repo = artifactory,
   ),
   dependencies=[
+    '//:scala-reflect',
+    '3rdparty/jvm/com/fasterxml/jackson:jackson-annotations',
     '3rdparty/jvm/com/google/inject/extensions:guice-assistedinject',
     '3rdparty/jvm/com/google/inject/extensions:guice-multibindings',
     '3rdparty/jvm/com/google/inject:guice',
@@ -18,4 +20,10 @@ scala_library(
   ],
   fatal_warnings=True,
   sources=rglobs('*.scala'),
+  exports=[
+    '3rdparty/jvm/com/google/inject/extensions:guice-assistedinject',
+    '3rdparty/jvm/net/codingwell:scala-guice',
+    'finatra/inject/inject-slf4j/src/main/scala',
+    'util/util-app/src/main/scala:scala',
+  ]
 )

@@ -4,15 +4,20 @@ import com.twitter.finatra.json.internal.caseclass.jackson.CaseClassField._
 import com.twitter.finatra.json.internal.caseclass.reflection.CaseClassSigParser._
 import com.twitter.finatra.json.internal.caseclass.utils.AnnotationUtils
 import com.twitter.finatra.json.internal.caseclass.validation.ValidationManager
-import com.twitter.inject.WordSpecTest
+import com.twitter.inject.Test
 import java.lang.annotation.Annotation
 
-class ValidatorTest extends WordSpecTest {
+class ValidatorTest extends Test {
 
   val messageResolver = new ValidationMessageResolver
   val validationManager = new ValidationManager(messageResolver)
 
-  def validate[A <: Annotation, V](clazz: Class[_], paramName: String, annotationClass: Class[A], value: V): ValidationResult = {
+  def validate[A <: Annotation, V](
+    clazz: Class[_],
+    paramName: String,
+    annotationClass: Class[A],
+    value: V
+  ): ValidationResult = {
     val annotation = getValidationAnnotation[A](clazz, paramName, annotationClass)
     validationManager.getValidator[A, V](annotation).isValid(value)
   }
@@ -26,7 +31,11 @@ class ValidatorTest extends WordSpecTest {
     } yield annotation
   }
 
-  def getValidationAnnotation[A <: Annotation](clazz: Class[_], paramName: String, annotationClass: Class[A]): A = {
+  def getValidationAnnotation[A <: Annotation](
+    clazz: Class[_],
+    paramName: String,
+    annotationClass: Class[A]
+  ): A = {
     val annotations = getValidationAnnotations(clazz, paramName)
     findAnnotation(annotationClass, annotations)
   }

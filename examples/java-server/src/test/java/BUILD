@@ -4,6 +4,7 @@ junit_tests(
     '3rdparty/jvm/junit',
     '3rdparty/jvm/org/scalatest:scalatest',
     '3rdparty/jvm/org/slf4j:slf4j-api',
+    '3rdparty/jvm/org/slf4j:slf4j-simple',
     'finatra/examples/java-server/src/main/java',
     'finatra/inject/inject-app/src/main/scala',
     'finatra/inject/inject-app/src/test/scala:test-deps',
@@ -16,10 +17,8 @@ junit_tests(
     'util/util-core/src/main/scala',
     'util/util-logging/src/main/scala',
     'util/util-slf4j-api/src/main/scala',
+    'finatra/examples/java-server/src/test/resources',
   ],
   fatal_warnings=False,
   sources=rglobs('*.java'),
-  resources=[
-    'finatra/examples/java-server/src/test/resources'
-  ]
 )

@@ -6,7 +6,7 @@ import org.scalatest.{Suite, SuiteMixin}
 
 /**
  * Testing trait which extends the [[com.twitter.inject.IntegrationTestMixin]] to provide
- * utilities for [[http://twitter.github.io/finatra/user-guide/testing/#feature-tests Feature testing]]
+ * utilities for [[https://twitter.github.io/finatra/user-guide/testing/#feature-tests Feature testing]]
  * with a test-defined [[com.twitter.inject.server.EmbeddedTwitterServer]] or subclass thereof.
  *
  * This trait is expected to be mixed with a class that extends a core Suite trait,
@@ -29,14 +29,18 @@ trait FeatureTestMixin
 
   override protected def beforeAll() {
     if (server.isStarted && hasBoundFields) {
-      throw new Exception("ERROR: Server started before integrationTestModule added. " +
-        "@Bind will not work unless references to the server are lazy, or within a ScalaTest " +
-        "lifecycle method or test method, or the integrationTestModule is manually added as " +
-        "an override module.")
+      throw new Exception(
+        "ERROR: Server started before integrationTestModule added. " +
+          "@Bind will not work unless references to the server are lazy, or within a ScalaTest " +
+          "lifecycle method or test method, or the integrationTestModule is manually added as " +
+          "an override module."
+      )
     }
 
-    assert(server.isInjectable)
-    server.injectableServer.addFrameworkOverrideModules(integrationTestModule)
+    if (hasBoundFields) {
+      assert(server.isInjectable)
+      server.injectableServer.addFrameworkOverrideModules(integrationTestModule)
+    }
     super.beforeAll()
   }
 

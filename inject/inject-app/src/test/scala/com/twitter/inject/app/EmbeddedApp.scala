@@ -10,8 +10,7 @@ import scala.reflect.runtime.universe._
  *
  * @param app The [[com.twitter.inject.app.App]] to be started for testing
  */
-class EmbeddedApp(
-  app: com.twitter.inject.app.App) extends Logging {
+class EmbeddedApp(app: com.twitter.inject.app.App) extends Logging {
 
   /**
    * Bind an instance of type [T] to the object graph of the underlying app.
@@ -21,9 +20,9 @@ class EmbeddedApp(
    * @tparam T - type of the instance to bind.
    * @return this [[EmbeddedApp]].
    *
-   * @see https://twitter.github.io/finatra/user-guide/testing/index.html#feature-tests
+   * @see [[https://twitter.github.io/finatra/user-guide/testing/index.html#feature-tests Feature Tests]]
    */
-  def bind[T : TypeTag](instance: T): EmbeddedApp = {
+  def bind[T: TypeTag](instance: T): EmbeddedApp = {
     app.addFrameworkOverrideModules(new InjectionServiceModule[T](instance))
     this
   }
@@ -38,10 +37,27 @@ class EmbeddedApp(
    * @tparam A - type of the Annotation used to bind the instance.
    * @return this [[EmbeddedApp]].
    *
-   * @see https://twitter.github.io/finatra/user-guide/testing/index.html#feature-tests
+   * @see [[https://twitter.github.io/finatra/user-guide/testing/index.html#feature-tests Feature Tests]]
    */
-  def bind[T : TypeTag, A <: Annotation : TypeTag](instance: T): EmbeddedApp = {
+  def bind[T: TypeTag, A <: Annotation: TypeTag](instance: T): EmbeddedApp = {
     app.addFrameworkOverrideModules(new InjectionServiceWithAnnotationModule[T, A](instance))
+    this
+  }
+
+  /**
+   * Bind an instance of type [T] annotated with the given Annotation value to the object
+   * graph of the underlying app. This will REPLACE any previously bound instance of
+   * the given type bound with the given annotation.
+   *
+   * @param annotation - [[java.lang.annotation.Annotation]] instance value
+   * @param instance - to bind instance.
+   * @tparam T - type of the instance to bind.
+   * @return this [[EmbeddedApp]].
+   *
+   * @see [[https://twitter.github.io/finatra/user-guide/testing/index.html#feature-tests Feature Tests]]
+   */
+  def bind[T: TypeTag](annotation: Annotation, instance: T): EmbeddedApp = {
+    app.addFrameworkOverrideModules(new InjectionServiceWithNamedAnnotationModule[T](annotation, instance))
     this
   }
 
@@ -71,5 +87,3 @@ class EmbeddedApp(
     flags.map { case (k, v) => "-" + k + "=" + v }
   }
 }
-
-

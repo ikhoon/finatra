@@ -1,6 +1,6 @@
 
 # Change Log
-All notable changes to this project will be documented in this file. Note that ``RB_ID=#`` and ``DIFF_ID=#`` correspond to associated message in commits.
+All notable changes to this project will be documented in this file. Note that ``RB_ID=#`` and ``PHAB_ID=#`` correspond to associated message in commits.
 
 ## [Unreleased]
 
@@ -8,10 +8,166 @@ All notable changes to this project will be documented in this file. Note that `
 
 ### Changed
 
+* EmbeddedTwitterServer, EmbeddedHttpServer, and EmbeddedThriftServer flags
+  and args parameters changed to call-by-name. ``PHAB_ID=`D104733`
+
+### Fixed
+
+### Closed
+
+## [finatra-17.10.0](https://github.com/twitter/finatra/tree/finatra-17.10.0) (2017-10-26)
+
+### Added
+
+* inject-core: Remove deprecated `c.t.inject.TestMixin#resetMocks`. Properly
+  use `c.t.inject.Mockito` trait in tests. Deprecate resetting of mocks and
+  resettables in `c.t.inject.IntegrationTestMixin`. ``PHAB_ID=D93876``
+
+* finatra-http: Parameterize `@RouteParam`,`@QueryParam`,`@FormParam`, and
+  `@Header` to allow specifying the field name to read from the params or
+  header map. Previously these annotations only looked for values by the
+  case class field name leading to possible ugliness when defining case
+  class fields (especially with `@Header`). ``PHAB_ID=`D94220`
+
+* finatra: Add support for using a `java.lang.annotation.Annotation` instance
+  with the `#bind[T]` testing DSL. This adds a way to bind instances in tests
+  that use the @Named binding annotation. ``PHAB_ID=D91330``
+
+* finatra-http: Allow setting the content type of a Mustache view.
+  ``PHAB_ID=D91949``
+
+### Changed
+
+* finatra-http: Move `FileResolver` to finatra/utils. ``PHAB_ID=D103536``
+
+* finatra-utils: Move `ResponseUtils` to finatra/http. ``PHAB_ID=D103507``
+
+* From now on, release versions will be based on release date in the format of
+  YY.MM.x where x is a patch number. ``PHAB_ID=D101244``
+
+* finatra-utils: Remove deprecated `ExternalServiceExceptionMatcher`. ``PHAB_ID=D98343``
+
+* finatra-jackson: ScalaType's `isMap` and `isCollection` methods now check that
+  the given object's class is a subclass of `scala.collection.Map[Any, Any]` and
+  `scala.collection.Iterable[Any]`, respectively. Previously the superclasses'
+  packages were unspecified. This is a runtime behavior change.
+  ``PHAB_ID=D93104``
+
+* finatra-http: Require that route URIs and prefixes begin with forward slash (/).
+  ``PHAB_ID=D90895``
+
+* inject-utils: (BREAKING API CHANGE) RichOption toFutureOrFail, toTryOrFail, and
+  toFutureOrElse signature changed to take the fail or else parameter by name.
+  ``PHAB_ID=D89544``
+
+* inject-server: Remove usage of deprecated `c.t.inject.logging.Slf4jBridgeUtility`.
+  Change usages to `c.t.util.logging.Slf4jBridgeUtility`. ``PHAB_ID=D88095``
+
+* finatra-http, inject-thrift-client: Remove netty3 specific types and dependency.
+  In finatra-http, the code using these types is deprecated and can be removed allowing
+  us to remove netty3-specific dependencies. In inject-thrift-client we can default to
+  use the DefaultTimer for the backupRequestFilter method param instead of the
+  HashedWheelTimer. ``PHAB_ID=D88025``
+
+### Fixed
+
+* finatra-http: Parameterized route callback inputs fail because the lookup of a
+  corresponding `MessageBodyManager` reader lookup does not properly handle parameterized
+  types such as collections. This change updates the `MessageBodyManager` `MessageBodyReader`
+  lookup to take into account parameterized types. This allows for a user to parse a
+  `Seq[T]`, or `Map[K, V]` as a route callback input type using the default Finatra
+  `MessageBodyReader`. ``PHAB_ID=D104277``
+
+* finatra-jackson: Fix issue causing `IllegalArgumentException` from Validations to
+  be swallowed. A catch clause in the `c.t.finatra.json.internal.caseclass.jackson.FinatraCaseClassDeserializer`
+  is too broad as it catches thrown `IllegalArgumentException`s from field validations
+  when the annotation is applied to a field of the incorrect type, e.g., when `@Max` is
+  applied to a String field. ``PHAB_ID=D95306``
+
+### Closed
+
+## [finatra-2.13.0](https://github.com/twitter/finatra/tree/finatra-2.13.0) (2017-09-06)
+
+### Added
+
+* inject-server: Add ability to fail embedded server startup on lint rule violation.
+  There is now a flag in the embedded servers that when set to true will fail
+  server startup if a lint rule violation is detected. This will then fail
+  the running test. ``PHAB_ID=D82399``
+
+### Changed
+
+* finatra-http: No longer depend on bijection-util. ``PHAB_ID=D86640``
+
+* finatra-jackson: Deprecate c.t.finatra.json.utils.CamelCasePropertyNamingStrategy.
+  This object was created to reduce ambiguity with previous releases of Jackson in which
+  the default PropertyNamingStrategy was an abstract class with a default of camel case.
+  Users are encouraged to use the Jackson PropertyNamingStrategy
+  constants directly. ``PHAB_ID=D81707``
+
+### Fixed
+
+### Closed
+
+## [finatra-2.12.0](https://github.com/twitter/finatra/tree/finatra-2.12.0) (2017-08-15)
+
+### Added
+
+* finatra-jackson: Add support for injecting a snake case FinatraObjectMapper by annotating
+  parameters with a new @SnakeCaseMapper binding annotation. ``PHAB_ID=D7798``
+
+### Changed
+
+* finatra-http: Add close hook when constructing a StreamingResponse to allow for resource
+  release without consuming an entire AsyncStream. ``PHAB_ID=D64013``
+
+* finatra-http: Unmarshalling JSON no longer consumes the body of a HTTP Request.
+  ``PHAB_ID=D74519``
+
+* finatra-inject: RetryUtil.retry has been removed because it used a blocking call
+  to Thread.sleep. Blocking Finagle threads results in poor performance and
+  RetryUtil.retryFuture should be used instead. ``PHAB_ID=D73949``
+
+### Fixed
+
+### Closed
+
+## [finatra-2.11.0](https://github.com/twitter/finatra/tree/finatra-2.11.0) (2017-06-06)
+
+### Added
+
+### Changed
+
+### Fixed
+
+* finatra-jackson: Fix JSON deserialization of scala.util.Either type in FinatraObjectMapper
+  for Scala 2.12. ``RB_ID=917699``
+
+### Closed
+
+## [finatra-2.10.0](https://github.com/twitter/finatra/tree/finatra-2.10.0) (2017-04-20)
+
+### Added
+
+### Changed
+
+* finatra-http: Increase composability and flexibility of RouteDSL. ``RB_ID=912095``
+
+* inject-app: Run installed modules postInjectorStartup before server function. This makes
+  reasoning about the server lifecycle a bit more straight-forward and simplifies things
+  like the exception manager logic for adding and overridding mappers. ``RB_ID=911965``
+
+* finatra-jackson: Update framework tests to FunSuite ScalaTest testing style. ``RB_ID=911745``
+
 * finatra: Move finatra/benchmarks and finatra/utils framework tests to FunSuite ScalaTest
   testing style. ``RB_ID=910680``
 
 ### Fixed
+
+* finatra-http: Correctly return a JsonParseException when the incoming JSON is not parsable
+  as an expected custom case class request object. ``RB_ID=912529``
+
+* finatra-http: Ensure underlying members are injected for AbstractControllers. ``RB_ID=911635``
 
 * finatra-jackson: Patch `FinatraDatetimeDeserializer` to support parsing of Long value passed
   as String, e.g., when parsing a query parameter.``RB_ID=911162``
@@ -88,7 +244,7 @@ All notable changes to this project will be documented in this file. Note that `
 
 * inject-core: Move Logging from grizzled-slf4j to util/util-slf4j-api.
   `c.t.inject.Logger` is now deprecated in favor of `c.t.util.logging.Logger`
-  in util. ``DIFF_ID=D29713``
+  in util. ``PHAB_ID=D29713``
 
 * finatra-httpclient: Update framework tests to FunSuite ScalaTest testing style. ``RB_ID=909526``
 
@@ -149,12 +305,12 @@ All notable changes to this project will be documented in this file. Note that `
   test helpers which mix in the recommended FunSuite. Thus it will look like your
   tests are broken as you will need to update to change to use the new "WordSpec"
   classes or changed your testing style to the recommended `FunSuite` style.
-  ``DIFF_ID=D19822``
+  ``PHAB_ID=D19822``
 
 * inject-core: Remove JUnitRunner from `c.t.inject.Test`. This was only necessary for
-  internal building with pants and is no longer required. The sbt build uses the 
-  ScalaTest runner and is thus not affected. Additionally, update specs2 to 2.4.17 and 
-  to depend on just the `specs2-mock` dependency where needed. ``DIFF_ID=D18011``
+  internal building with pants and is no longer required. The sbt build uses the
+  ScalaTest runner and is thus not affected. Additionally, update specs2 to 2.4.17 and
+  to depend on just the `specs2-mock` dependency where needed. ``PHAB_ID=D18011``
 
 ### Fixed
 
@@ -167,7 +323,7 @@ All notable changes to this project will be documented in this file. Note that `
 
 * inject-app: Fix TestInjector to properly parse flags. The TestInjector didn't
   properly handle defaulted boolean flags when defined in Modules. Updated the
-  TestInjector logic to properly parse flags. Fixes [Issue #373](https://github.com/twitter/finatra/issues/373) 
+  TestInjector logic to properly parse flags. Fixes [Issue #373](https://github.com/twitter/finatra/issues/373)
   ``RB_ID=901525``
 
 * finatra: Correctly filter published tests-javadocs and tests-sources jars for
@@ -299,8 +455,8 @@ All notable changes to this project will be documented in this file. Note that `
 ### Fixed
 
 * finatra-jackson: Test jar is missing files. Classes in the test
-  `c.t.finatra.validation` package were not properly marked for 
-  inclusion in the finatra-jackson tests jar. They've now been added. 
+  `c.t.finatra.validation` package were not properly marked for
+  inclusion in the finatra-jackson tests jar. They've now been added.
   ``RB_ID=878755``
 
 ### Closed
@@ -316,38 +472,38 @@ All notable changes to this project will be documented in this file. Note that `
 
 ### Changed
 
-* finatra-http: Simplify ExceptionMapper configuration and usage. 
+* finatra-http: Simplify ExceptionMapper configuration and usage.
   We are dropping the need for a specialized DefaultExceptionMapper (which
-  was simply an ExceptionMapper[Throwable]). Instead we now allow the 
-  configuration of mappers in the ExceptionManager to be much more flexible. 
-  Previously, the framework tried to prevent a user from registering a mapper 
-  over a given exception type multiple times and specialized a "default" 
-  ExceptionMapper to invoke on an exception type of Throwable. The 
-  ExceptionManager will now accept any mapper. If a mapper is added over a 
-  type already added, the previous mapper will be overwritten. 
+  was simply an ExceptionMapper[Throwable]). Instead we now allow the
+  configuration of mappers in the ExceptionManager to be much more flexible.
+  Previously, the framework tried to prevent a user from registering a mapper
+  over a given exception type multiple times and specialized a "default"
+  ExceptionMapper to invoke on an exception type of Throwable. The
+  ExceptionManager will now accept any mapper. If a mapper is added over a
+  type already added, the previous mapper will be overwritten.
 
   The last registered mapper for an exception type wins.
 
-  The framework adds three mappers to the manager by default. If a user wants 
-  to swap out any of these defaults they simply need add their own mapper to 
-  the manager for the exception type to map. E.g., by default the framework 
+  The framework adds three mappers to the manager by default. If a user wants
+  to swap out any of these defaults they simply need add their own mapper to
+  the manager for the exception type to map. E.g., by default the framework
   will add:
-  Throwable -> 
+  Throwable ->
       com.twitter.finatra.http.internal.exceptions.ThrowableExceptionMapper
-  JsonParseException -> 
+  JsonParseException ->
       com.twitter.finatra.http.internal.exceptions.json.JsonParseExceptionMapper
-  CaseClassMappingException -> 
+  CaseClassMappingException ->
       com.twitter.finatra.http.internal.exceptions.json.CaseClassExceptionMapper
 
-  The manager walks the exception type hierarchy starting at the given 
-  exceptiontype and moving up the inheritence chain until it finds mapper 
-  configured for the type. In this manner an ExceptionMapper[Throwable] will 
+  The manager walks the exception type hierarchy starting at the given
+  exceptiontype and moving up the inheritence chain until it finds mapper
+  configured for the type. In this manner an ExceptionMapper[Throwable] will
   be the last mapper invoked and performs as the "default".
 
-  Thus, to change the "default" mapper, simply adding a new mapper over the 
-  Throwable type will suffice, i.e., ExceptionMapper[Throwable] to the 
-  ExceptionManager. There  are multiple ways to add a mapper. Either through 
-  the HttpRouter: 
+  Thus, to change the "default" mapper, simply adding a new mapper over the
+  Throwable type will suffice, i.e., ExceptionMapper[Throwable] to the
+  ExceptionManager. There  are multiple ways to add a mapper. Either through
+  the HttpRouter:
 
 
     override def configureHttp(router: HttpRouter): Unit = {
@@ -374,8 +530,8 @@ All notable changes to this project will be documented in this file. Note that `
       ...)
 
 
-  This also means we can simplify the HttpServer as we no longer need to expose 
-  any "framework" module for overridding the default ExceptionMappers. So the 
+  This also means we can simplify the HttpServer as we no longer need to expose
+  any "framework" module for overridding the default ExceptionMappers. So the
   "def exceptionMapperModule" has also been removed.``RB_ID=868614``
 * finatra-http: Specify HTTP Java API consistently. ``RB_ID=868264``
 * inject-core: Clean up inject.Logging trait. Remove dead code from Logging.

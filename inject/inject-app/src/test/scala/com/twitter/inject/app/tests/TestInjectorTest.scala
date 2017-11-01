@@ -1,5 +1,6 @@
 package com.twitter.inject.app.tests
 
+import com.google.inject.name.Names
 import com.twitter.app.GlobalFlag
 import com.twitter.finatra.tests.Prod
 import com.twitter.inject.annotations.Flag
@@ -7,9 +8,15 @@ import com.twitter.inject.app.TestInjector
 import com.twitter.inject.{Test, TwitterModule}
 import javax.inject.Inject
 
-object testBooleanGlobalFlag extends GlobalFlag[Boolean](false, "Test boolean global flag defaulted to false")
-object testStringGlobalFlag extends GlobalFlag[String]("foo", "Test string global flag defaulted to foo")
-object testMapGlobalFlag extends GlobalFlag[Map[String, String]](Map.empty, "Test map global flag defaulted to Map.empty")
+object testBooleanGlobalFlag
+    extends GlobalFlag[Boolean](false, "Test boolean global flag defaulted to false")
+object testStringGlobalFlag
+    extends GlobalFlag[String]("foo", "Test string global flag defaulted to foo")
+object testMapGlobalFlag
+    extends GlobalFlag[Map[String, String]](
+      Map.empty,
+      "Test map global flag defaulted to Map.empty"
+    )
 
 object BooleanFlagModule extends TwitterModule {
   flag[Boolean]("x", false, "default to false")
@@ -19,6 +26,8 @@ object TestBindModule extends TwitterModule {
   override protected def configure(): Unit = {
     bind[String, Prod].toInstance("Hello, world!")
     bind[Baz].toInstance(new Baz(10))
+    bind[Baz](Names.named("five")).toInstance(new Baz(5))
+    bind[Baz](Names.named("six")).toInstance(new Baz(6))
   }
 }
 
@@ -66,8 +75,9 @@ class TestInjectorTest extends Test {
       flags = Map(
         "com.twitter.inject.app.tests.testBooleanGlobalFlag" -> "true",
         "com.twitter.inject.app.tests.testStringGlobalFlag" -> "bar",
-        "com.twitter.inject.app.tests.testMapGlobalFlag" -> "key1=foo,key2=bar"))
-      .create
+        "com.twitter.inject.app.tests.testMapGlobalFlag" -> "key1=foo,key2=bar"
+      )
+    ).create
     val bar = injector.instance[Bar]
     assert(bar.booleanGlobalFlag)
     assert(bar.stringGlobalFlag == "bar")
@@ -75,29 +85,30 @@ class TestInjectorTest extends Test {
   }
 
   test("module defaults") {
-    val injector = TestInjector(
-      modules = Seq(TestBindModule))
-      .create
+    val injector = TestInjector(modules = Seq(TestBindModule)).create
 
     assert(injector.instance[Baz].value == 10)
+    assert(injector.instance[Baz]("five").value == 5)
+    assert(injector.instance[Baz](Names.named("six")).value == 6)
     assert(injector.instance[String, Prod] == "Hello, world!")
   }
 
   test("bind") {
-    val injector = TestInjector(
-      modules = Seq(TestBindModule))
+    val injector = TestInjector(modules = Seq(TestBindModule))
       .bind[Baz](new Baz(100))
       .bind[String, Prod]("Goodbye, world!")
+      .bind[String](Names.named("foo"), "bar")
       .create
 
     assert(injector.instance[Baz].value == 100)
     assert(injector.instance[String, Prod] == "Goodbye, world!")
+    assert(injector.instance[String]("foo") == "bar")
   }
 
   test("bind fails after injector is called") {
-    val testInjector = TestInjector(
-      modules = Seq(TestBindModule))
-      .bind[Baz](new Baz(100))
+    val testInjector =
+      TestInjector(modules = Seq(TestBindModule))
+        .bind[Baz](new Baz(100))
     val injector = testInjector.create
 
     intercept[IllegalStateException] {

@@ -14,9 +14,14 @@ scala_library(
     'util/util-core/src/main/scala',
     'util/util-slf4j-api/src/main/scala',
   ],
+  exports=[
+    '3rdparty/jvm/com/fasterxml/jackson/core:jackson-annotations',
+    'util/util-core/src/main/scala:scala',
+    'util/util-slf4j-api/src/main/scala',
+  ],
   excludes=[
     exclude(org='org.clapper', name='grizzled-slf4j')
   ],
   fatal_warnings=True,
-  sources=rglobs('*.scala')
+  sources=rglobs('*.scala'),
 )

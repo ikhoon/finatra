@@ -9,11 +9,12 @@ object FutureUtils {
    * Note: Ordering of results is preserved
    */
   def sequentialMap[A, B](seq: Seq[A])(func: A => Future[B]): Future[Seq[B]] = {
-    seq.foldLeft(Future.value(Vector.empty[B])) { case (futureResults, element) =>
-      for {
-        results <- futureResults
-        result <- func(element)
-      } yield results :+ result
+    seq.foldLeft(Future.value(Vector.empty[B])) {
+      case (futureResults, element) =>
+        for {
+          results <- futureResults
+          result <- func(element)
+        } yield results :+ result
     }
   }
 
@@ -26,7 +27,7 @@ object FutureUtils {
     }
   }
 
-  private val timer = DefaultTimer.twitter
+  private val timer = DefaultTimer
 
   def scheduleFuture[T](offset: Duration)(func: => Future[T]): Future[T] = {
     val promise = new Promise[T]

@@ -22,16 +22,13 @@ class DashboardController extends Controller {
   get("/user") { request: Request =>
     val firstName = request.params("first")
     val lastName = request.params("last")
-    UserView(
-      firstName,
-      lastName)
+    UserView(firstName, lastName)
   }
 
   get("/document.xml") { request: Request =>
     response.ok
       .contentType(MediaType.XML_UTF_8)
-      .body(
-        """<?xml version="1.0" encoding="UTF-8" ?>
+      .body("""<?xml version="1.0" encoding="UTF-8" ?>
           |<records>
           |	<record>
           |		<foo>Ac Eleifend Vitae Industries</foo>
@@ -839,19 +836,17 @@ class DashboardController extends Controller {
 
   /**
    * An example of how to serve files or an index. If the path param of "*" matches the name/path
-   * of a file that can be resolved by the [[com.twitter.finatra.http.routing.FileResolver]]
+   * of a file that can be resolved by the [[com.twitter.finatra.utils.FileResolver]]
    * then the file will be returned. Otherwise the file at 'indexPath' (in this case 'index.html')
    * will be returned. This is useful for building "single-page" web applications.
    *
    * Routes a are matched in the order they are defined, thus this route SHOULD be LAST as it is
    * a "catch-all" and routes should be defined in order of most-specific to least-specific.
    *
-   * @see http://twitter.github.io/finatra/user-guide/build-new-http-server/controller.html#controllers-and-routing
-   * @see http://twitter.github.io/finatra/user-guide/files/
+   * @see https://twitter.github.io/finatra/user-guide/build-new-http-server/controller.html#controllers-and-routing
+   * @see https://twitter.github.io/finatra/user-guide/files/
    */
   get("/:*") { request: Request =>
-    response.ok.fileOrIndex(
-      filePath = request.params("*"),
-      indexPath = "index.html")
+    response.ok.fileOrIndex(filePath = request.params("*"), indexPath = "index.html")
   }
 }
